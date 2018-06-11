@@ -169,6 +169,7 @@ entails SolverOptions{..} constraint context hints =
     forClassName _ C.SymbolCompare args | Just dicts <- solveSymbolCompare args = dicts
     forClassName _ C.SymbolAppend args | Just dicts <- solveSymbolAppend args = dicts
     forClassName _ C.SymbolCons args | Just dicts <- solveSymbolCons args = dicts
+    forClassName _ C.SymbolBreakOn args | Just dicts <- solveSymbolBreakOn args = dicts
     forClassName _ C.RowUnion args | Just dicts <- solveUnion args = dicts
     forClassName _ C.RowNub args | Just dicts <- solveNub args = dicts
     forClassName _ C.RowLacks args | Just dicts <- solveLacks args = dicts
@@ -412,6 +413,27 @@ entails SolverOptions{..} constraint context hints =
       guard (T.length h' == 1)
       pure (arg1, arg2, TypeLevelString (mkString $ h' <> t'))
     consSymbol _ _ _ = Nothing
+
+    solveSymbolBreakOn :: [Type] -> Maybe [TypeClassDict]
+    solveSymbolBreakOn [arg0, arg1, arg2, arg3] = do
+      (arg0', arg1', arg2', arg3') <- breakOnSymbol arg0 arg1 arg2 arg3
+      let args' = [arg0', arg1', arg2', arg3']
+      pure [TypeClassDictionaryInScope [] 0 EmptyClassInstance [] C.SymbolBreakOn args' Nothing]
+    solveSymbolBreakOn _ = Nothing
+
+    -- breakOn by full, breaker, first, rest
+    breakOnSymbol :: Type -> Type -> Type -> Type -> Maybe (Type, Type, Type, Type)
+    breakOnSymbol breaker@(TypeLevelString breaker') full@(TypeLevelString full') _ _ = do
+      (first, rest) <- T.breakOn <$> decodeString breaker' <*> decodeString full'
+      pure (breaker, full, mkTLString first, mkTLString rest)
+      where mkTLString = TypeLevelString . mkString
+    breakOnSymbol breaker@(TypeLevelString breaker') _ first@(TypeLevelString first') rest@(TypeLevelString rest') = do
+      first'' <- decodeString first'
+      breaker'' <- decodeString breaker'
+      rest'' <- decodeString rest'
+      let full = first'' <> breaker'' <> rest''
+      pure (breaker, TypeLevelString $ mkString full, first, rest)
+    breakOnSymbol _ _ _ _ = Nothing
 
     solveUnion :: [Type] -> Maybe [TypeClassDict]
     solveUnion [l, r, u] = do
