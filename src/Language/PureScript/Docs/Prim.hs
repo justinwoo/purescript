@@ -92,6 +92,7 @@ primSymbolDocsModule = Module
       [ symbolAppend
       , symbolCompare
       , symbolCons
+      , symbolBreakOn
       ]
   , modReExports = []
   }
@@ -417,6 +418,14 @@ symbolCons = primClassOf (P.primSubName "Symbol") "Cons" $ T.unlines
   , "head and tail or for combining a head and tail into a new symbol."
   , "Requires the head to be a single character and the combined string"
   , "cannot be empty."
+  ]
+
+symbolBreakOn :: Declaration
+symbolBreakOn = primClassOf (P.primSubName "Symbol") "BreakOn" $ T.unlines
+  [ "Compiler solved type class for breaking a symbol into its head and tail"
+  , "using the whole symbol and a breaking symbol, or for joining together the"
+  , "head and tail with the breaking symbol."
+  , "Returns empty strings when breaking on a Symbol that is not matched."
   ]
 
 fail :: Declaration
