@@ -296,6 +296,9 @@ kindOrdering = primSubKind C.moduleOrdering C.kindOrdering
 kindRowList :: Kind
 kindRowList = primSubKind C.moduleRowList C.kindRowList
 
+kindSymbolBreakOnResult :: Kind
+kindSymbolBreakOnResult = primSubKind C.moduleSymbol C.kindSymbolBreakOnResult
+
 -- | Construct a type in the Prim module
 primTy :: Text -> Type
 primTy = TypeConstructor . primName
@@ -367,6 +370,11 @@ primRowListKinds = S.fromList
   [ primSubName C.moduleRowList C.kindRowList
   ]
 
+primSymbolKinds :: S.Set (Qualified (ProperName 'KindName))
+primSymbolKinds = S.fromList
+  [ primSubName C.moduleSymbol C.kindSymbolBreakOnResult
+  ]
+
 -- | Kinds in @Prim.TypeError@
 primTypeErrorKinds :: S.Set (Qualified (ProperName 'KindName))
 primTypeErrorKinds = S.fromList
@@ -379,6 +387,7 @@ allPrimKinds = fold
   [ primKinds
   , primOrderingKinds
   , primRowListKinds
+  , primSymbolKinds
   , primTypeErrorKinds
   ]
 
@@ -440,7 +449,9 @@ primSymbolTypes =
     [ (primSubName C.moduleSymbol "Append",  (kindSymbol -:> kindSymbol -:> kindSymbol -:> kindConstraint, ExternData))
     , (primSubName C.moduleSymbol "Compare", (kindSymbol -:> kindSymbol -:> kindOrdering -:> kindConstraint, ExternData))
     , (primSubName C.moduleSymbol "Cons",  (kindSymbol -:> kindSymbol -:> kindSymbol -:> kindConstraint, ExternData))
-    , (primSubName C.moduleSymbol "BreakOn",  (kindSymbol -:> kindSymbol -:> kindSymbol -:> kindSymbol -:> kindConstraint, ExternData))
+    , (primSubName C.moduleSymbol "BreakOn",  (kindSymbol -:> kindSymbol -:> kindSymbolBreakOnResult -:> kindConstraint, ExternData))
+    , (primSubName C.moduleSymbol "Broken", (kindSymbol -:> kindSymbol -:> kindSymbolBreakOnResult, ExternData))
+    , (primSubName C.moduleSymbol "NotBroken", (kindSymbolBreakOnResult, ExternData))
     ]
 
 primTypeErrorTypes :: M.Map (Qualified (ProperName 'TypeName)) (Kind, TypeKind)
@@ -557,15 +568,13 @@ primSymbolClasses =
         , FunctionalDependency [2] [0, 1]
         ])
 
-    -- class BreakOn (breakOn :: Symbol) (symbol :: Symbol) (first :: Symbol) (second :: Symbol) | breakOn symbol -> first second, breakOn first second -> symbol
+    -- class BreakOn (breakOn :: Symbol) (symbol :: Symbol) (result :: BreakOn) | breakOn symbol -> result
     , (primSubName C.moduleSymbol "BreakOn", makeTypeClassData
         [ ("breakOn", Just kindSymbol)
         , ("symbol", Just kindSymbol)
-        , ("first", Just kindSymbol)
-        , ("second", Just kindSymbol)
+        , ("result", Just kindSymbolBreakOnResult)
         ] [] []
-        [ FunctionalDependency [0, 1] [2, 3]
-        , FunctionalDependency [0, 2, 3] [1]
+        [ FunctionalDependency [0, 1] [2]
         ])
     ]
 

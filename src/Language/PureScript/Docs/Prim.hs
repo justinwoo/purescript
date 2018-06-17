@@ -93,6 +93,9 @@ primSymbolDocsModule = Module
       , symbolCompare
       , symbolCons
       , symbolBreakOn
+      , kindSymbolBreakOnResult
+      , dataSymbolBroken
+      , dataSymbolNotBroken
       ]
   , modReExports = []
   }
@@ -157,6 +160,7 @@ lookupPrimTypeKindOf k = fst . unsafeLookupOf k
     P.primOrderingTypes <>
     P.primRowTypes <>
     P.primRowListTypes <>
+    P.primSymbolTypes <>
     P.primTypeErrorTypes
   ) "Docs.Prim: No such Prim type: "
 
@@ -426,6 +430,24 @@ symbolBreakOn = primClassOf (P.primSubName "Symbol") "BreakOn" $ T.unlines
   , "using the whole symbol and a breaking symbol, or for joining together the"
   , "head and tail with the breaking symbol."
   , "Returns empty strings when breaking on a Symbol that is not matched."
+  ]
+
+kindSymbolBreakOnResult :: Declaration
+kindSymbolBreakOnResult = primKindOf (P.primSubName "Symbol") "BreakOnResult" $ T.unlines
+  [ "The kind of the result of breaking on a Symbol with a breaking character."
+  , "This is similar to a Maybe (Tuple Symbol Symbol)."
+  ]
+
+dataSymbolBroken :: Declaration
+dataSymbolBroken = primTypeOf (P.primSubName "Symbol") "Broken" $ T.unlines
+  [ "A data type for BreakOnResult, containing the first and rest of the broken"
+  , "string in the parameters for when the breaking symbol has been matched."
+  ]
+
+dataSymbolNotBroken :: Declaration
+dataSymbolNotBroken = primTypeOf (P.primSubName "Symbol") "NotBroken" $ T.unlines
+  [ "A data type for BreakOnResult, where no result is returned from"
+  , "no match of the breaking symbol on BreakOn."
   ]
 
 fail :: Declaration

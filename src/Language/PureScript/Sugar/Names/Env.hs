@@ -209,7 +209,7 @@ primRowListExports = mkPrimExports primRowListTypes primRowListClasses primRowLi
 -- The exported types from the @Prim.Symbol@ module
 --
 primSymbolExports :: Exports
-primSymbolExports = mkPrimExports primSymbolTypes primSymbolClasses mempty
+primSymbolExports = mkPrimExports primSymbolTypes primSymbolClasses primSymbolKinds
 
 -- |
 -- The exported types from the @Prim.TypeError@ module

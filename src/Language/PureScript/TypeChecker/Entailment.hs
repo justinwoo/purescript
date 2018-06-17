@@ -415,27 +415,22 @@ entails SolverOptions{..} constraint context hints =
     consSymbol _ _ _ = Nothing
 
     solveSymbolBreakOn :: [Type] -> Maybe [TypeClassDict]
-    solveSymbolBreakOn [arg0, arg1, arg2, arg3] = do
-      (arg0', arg1', arg2', arg3') <- breakOnSymbol arg0 arg1 arg2 arg3
-      let args' = [arg0', arg1', arg2', arg3']
+    solveSymbolBreakOn [arg0, arg1, arg2] = do
+      (arg0', arg1', arg2') <- breakOnSymbol arg0 arg1 arg2
+      let args' = [arg0', arg1', arg2']
       pure [TypeClassDictionaryInScope [] 0 EmptyClassInstance [] C.SymbolBreakOn args' Nothing]
     solveSymbolBreakOn _ = Nothing
 
-    -- breakOn by full, breaker, first, rest
-    breakOnSymbol :: Type -> Type -> Type -> Type -> Maybe (Type, Type, Type, Type)
-    breakOnSymbol breaker@(TypeLevelString breaker') full@(TypeLevelString full') _ _ = do
+    -- breakOn by full, breaker, result
+    breakOnSymbol :: Type -> Type -> Type -> Maybe (Type, Type, Type)
+    breakOnSymbol breaker@(TypeLevelString breaker') full@(TypeLevelString full') _ = do
       (first, rest) <- T.breakOn <$> decodeString breaker' <*> decodeString full'
-      pure (breaker, full, mkTLString first, mkTLString rest)
+      let result = if T.null rest
+          then TypeConstructor C.SymbolNotBroken
+          else foldl TypeApp (TypeConstructor C.SymbolBroken) [ mkTLString first, mkTLString rest ]
+      pure (breaker, full, result)
       where mkTLString = TypeLevelString . mkString
-    breakOnSymbol breaker@(TypeLevelString breaker') _ first@(TypeLevelString first') rest@(TypeLevelString rest') = do
-      first'' <- decodeString first'
-      breaker'' <- decodeString breaker'
-      rest'' <- decodeString rest'
-      guard $ not (T.isInfixOf breaker'' first'')
-      guard (T.isPrefixOf breaker'' rest'')
-      let full = first'' <> rest''
-      pure (breaker, TypeLevelString $ mkString full, first, rest)
-    breakOnSymbol _ _ _ _ = Nothing
+    breakOnSymbol _ _ _ = Nothing
 
     solveUnion :: [Type] -> Maybe [TypeClassDict]
     solveUnion [l, r, u] = do

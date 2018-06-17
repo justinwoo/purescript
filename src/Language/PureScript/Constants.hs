@@ -440,6 +440,12 @@ pattern SymbolCons = Qualified (Just PrimSymbol) (ProperName "Cons")
 pattern SymbolBreakOn :: Qualified (ProperName 'ClassName)
 pattern SymbolBreakOn = Qualified (Just PrimSymbol) (ProperName "BreakOn")
 
+pattern SymbolNotBroken :: Qualified (ProperName 'TypeName)
+pattern SymbolNotBroken = Qualified (Just PrimSymbol) (ProperName "NotBroken")
+
+pattern SymbolBroken :: Qualified (ProperName 'TypeName)
+pattern SymbolBroken = Qualified (Just PrimSymbol) (ProperName "Broken")
+
 -- Prim.TypeError
 
 pattern PrimTypeError :: ModuleName
@@ -470,6 +476,9 @@ kindOrdering = "Ordering"
 
 kindRowList :: forall a. (IsString a) => a
 kindRowList = "RowList"
+
+kindSymbolBreakOnResult :: forall a. (IsString a) => a
+kindSymbolBreakOnResult = "BreakOnResult"
 
 symbol :: forall a. (IsString a) => a
 symbol = "Symbol"

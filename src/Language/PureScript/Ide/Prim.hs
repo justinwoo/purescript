@@ -23,7 +23,7 @@ idePrimDeclarations =
     , mconcat [primRowListTypes, primRowListClasses, primRowListKinds]
     )
   , ( C.PrimSymbol
-    , mconcat [primSymbolTypes, primSymbolClasses]
+    , mconcat [primSymbolTypes, primSymbolClasses, primSymbolKinds]
     )
   , ( C.PrimTypeError
     , mconcat [primTypeErrorTypes, primTypeErrorClasses, primTypeErrorKinds]
@@ -61,6 +61,9 @@ idePrimDeclarations =
       IdeDeclarationAnn emptyAnn (IdeDeclKind (P.disqualify kn))
 
     primRowListKinds = foreach (Set.toList PEnv.primRowListKinds) $ \kn ->
+      IdeDeclarationAnn emptyAnn (IdeDeclKind (P.disqualify kn))
+
+    primSymbolKinds = foreach (Set.toList PEnv.primSymbolKinds) $ \kn ->
       IdeDeclarationAnn emptyAnn (IdeDeclKind (P.disqualify kn))
 
     primTypeErrorKinds = foreach (Set.toList PEnv.primTypeErrorKinds) $ \kn ->
